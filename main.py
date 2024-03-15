@@ -4,7 +4,11 @@ c = r.BeginnerCube(3)
 
 c.view()
 
-c.scramble(7)
+print("Cost", c.cost())
+
+c.scramble(100)
+
+print("Cost", c.cost())
 
 c.view()
 
