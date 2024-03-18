@@ -17,7 +17,7 @@ def distance(coordA, coordB):
 
 class RubixCube(ABC):
     __slots__ = ('moves', 'N', 'cube', '_children', 'original_positions', 'verbosity')
-    def __init__(self, n, cube = None, verbosity = 0) -> None:
+    def __init__(self, n, cube = None, verbosity = 0, beta=18, **kwargs) -> None:
         self.verbosity = verbosity
         self.moves = []
         self.N = n

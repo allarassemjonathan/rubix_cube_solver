@@ -16,12 +16,12 @@ def evaluate_solve_rate(cube, n, num_trials=50, depth=10, node_limit=10**6, **kw
         c.scramble(depth)
         moves = []
         try:
-            moves = c.solve(callback=update)
+            moves = c.solve(callback=update, **kwargs)
         except NodeLimitException:
             pass
         moves = []
         try:
-            moves = c.solve(callback=update)
+            moves = c.solve(callback=update, **kwargs)
         except Exception:
             pass
         if c.evaluate(moves):
@@ -41,7 +41,7 @@ def evaluate_node_count(cube, n, num_trials=50, depth=10, node_limit=10**6, **kw
         c = cube(n, **kwargs)
         c.scramble(depth)
         try:
-            c.solve(update)
+            c.solve(callback=update, **kwargs)
             total_nodes += local_nodes[0]
             finished_problems += 1
         except NodeLimitException:
