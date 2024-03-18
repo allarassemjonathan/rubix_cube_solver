@@ -11,8 +11,9 @@ def distance(coordA, coordB):
     return sum(abs(x-y) for x,y in zip(coordA, coordB))
 
 class rubix_cube(ABC):
-    __slots__ = ('moves', 'N', 'cube', '_children', 'original_positions')
-    def __init__(self, n, cube = None) -> None:
+    __slots__ = ('moves', 'N', 'cube', '_children', 'original_positions', 'verbosity')
+    def __init__(self, n, cube = None, verbosity = 0) -> None:
+        self.verbosity = verbosity
         self.moves = []
         self.N = n
         if cube is None:
@@ -25,6 +26,10 @@ class rubix_cube(ABC):
             for m in BASIC_MOVES:
                 self.moves.append(str(i) + m)
                 self.moves.append(str(i) + m + '\'')
+
+    def print_if(self, v=0, *args, **kwargs):
+        if self.verbosity >= v:
+            print(*args, **kwargs)
 
     def child_after(self, move):
         c = deepcopy(self.cube)
