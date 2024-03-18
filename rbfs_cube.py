@@ -1,13 +1,19 @@
-from rubix_cube import rubix_cube
+from rubix_cube import RubixCube
 from bisect import insort
 from collections import deque
-
+from copy import deepcopy
 BIG_NUMBER = 2**32
 
 def gen_f(d):
     return lambda node: d + node.cost()
 
-class RBFSCube(rubix_cube):
+class RBFSCube(RubixCube):
+
+    def child_after(self, move):
+        c = deepcopy(self.cube)
+        c.rotate(move)
+        return self.__class__(self.N, c)
+    
     def RBFS(self, callback=lambda: 0, v=None, b=BIG_NUMBER, d=0, visited=deque()):
         callback()
         f = gen_f(d)
@@ -22,7 +28,7 @@ class RBFSCube(rubix_cube):
         if self.cube.is_done():
             print("Found solution at depth", d)
             return [""], 0
-        moves, children = zip(*self.children())
+        moves, children = zip(*self.children(incl_action=True))
         # if len(children) == 0:
         #     return BIG_NUMBER
         costs = [BIG_NUMBER] * len(children)

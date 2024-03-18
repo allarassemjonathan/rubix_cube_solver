@@ -1,20 +1,29 @@
 import time
 from tqdm import tqdm
-from rubix_cube import RubixCube, cube_str, man_heuristic
+from rubix_cube import RubixCube, cube_str
 from copy import deepcopy
 import math
 import sys
 import random
+import json
 
-
+mapping = {
+    2: 'heuristic_n_2_d_6.json',
+    3: 'heuristic_n_3_d_6.json',
+    4: 'heuristic_n_4_d_5.json'
+}
 
 class IDAstarSolver(RubixCube):
-    def __init__(self, n, heuristic, max_depth, cube=None) -> None:
+    def __init__(self, n, max_depth, heuristic=None, cube=None) -> None:
         super().__init__(n, cube)
+        
         self.max_depth = max_depth
         self.threshold = max_depth
         self.min_threshold = None
-        self.heuristic = heuristic
+        if heuristic is None:
+            self.heuristic = json.load(open(mapping[n], "r"))
+        else:
+            self.heuristic = heuristic
         self.solve_moves = []
         self.num_orderings = 30
         self.random_ordering = [random.sample([j for j in range(len(self.moves))], len(self.moves)) for i in range(self.num_orderings)]
@@ -30,8 +39,8 @@ class IDAstarSolver(RubixCube):
 
         #Taken from line 27 of solver.py https://github.com/bellerb/RubiksCube_Solver
         while True:
-            if verbosity >= 1:
-                print(f"Starting search with threshold of {self.threshold}")
+
+            self.print_if(1, f"Starting search with threshold of {self.threshold}")
             # Calls the serach function with the starting cube, an initial
             #   g-score of 1, and a callback to keep track of node count
             stat = self.search(self.cube, 1, callback=callback, verbosity=0)
@@ -63,8 +72,7 @@ class IDAstarSolver(RubixCube):
         # prune any paths that have a length longer than the min threshold
         #   previously found. This is a lot of the iterative deepening part of IDA*
         elif len(self.solve_moves) >= self.threshold:
-            if verbosity >= 2:
-                print(f"Pruning with len(self.solve_moves) = {len(self.solve_moves)} and self.threshold = {self.threshold}")
+            self.print_if(2, f"Pruning with len(self.solve_moves) = {len(self.solve_moves)} and self.threshold = {self.threshold}")
             return False
 
         # Initial min val
@@ -126,8 +134,8 @@ class IDAstarSolver(RubixCube):
                     curr_best_action = [(ida_solver, move)]
                 else:
                     curr_best_action.append((ida_solver, move))
-            if verbosity >= 2:
-                print(f"F-SCORE: {f_score}\n MIN-VAL: {minimum_val}\n G-SCORE: {g_score}\n H-SCORE: {h_score}\n CURR-BEST-ACTIONS: {[i[1] for i in curr_best_action]}\n DEPTH: {depth}")
+
+            self.print_if(2, f"F-SCORE: {f_score}\n MIN-VAL: {minimum_val}\n G-SCORE: {g_score}\n H-SCORE: {h_score}\n CURR-BEST-ACTIONS: {[i[1] for i in curr_best_action]}\n DEPTH: {depth}")
 
         if curr_best_action is not None:
 
@@ -135,6 +143,7 @@ class IDAstarSolver(RubixCube):
             if self.min_threshold is None or minimum_val < self.min_threshold:
                 self.min_threshold = minimum_val
 
+            self.print_if(1, f"Current Best Action List: {curr_best_action}")
             # pick one of the best next moves and add it to curr path
             next_move = random.choice(curr_best_action)
             self.solve_moves.append(next_move[1])

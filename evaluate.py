@@ -3,7 +3,7 @@ from rubix_cube import RubixCube
 class NodeLimitException(Exception):
     pass
 
-def evaluate_solve_rate(cube: rubix_cube.__class__, n, num_trials=50, depth=10, node_limit=10**6, **kwargs):
+def evaluate_solve_rate(cube, n, num_trials=50, depth=10, node_limit=10**6, **kwargs):
     solved = 0
     total_nodes = [0]
     def update():
@@ -29,7 +29,7 @@ def evaluate_solve_rate(cube: rubix_cube.__class__, n, num_trials=50, depth=10, 
             solved += 1
     return solved / num_trials
 
-def evaluate_node_count(cube: rubix_cube.__class__, n, num_trials=50, depth=10, node_limit=10**6, **kwargs):
+def evaluate_node_count(cube, n, num_trials=50, depth=10, node_limit=10**6, **kwargs):
     total_nodes = 0
     local_nodes = [0]
     finished_problems = 0

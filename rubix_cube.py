@@ -15,7 +15,7 @@ def cube_str(cube):
 def distance(coordA, coordB):
     return sum(abs(x-y) for x,y in zip(coordA, coordB))
 
-class rubix_cube(ABC):
+class RubixCube(ABC):
     __slots__ = ('moves', 'N', 'cube', '_children', 'original_positions', 'verbosity')
     def __init__(self, n, cube = None, verbosity = 0) -> None:
         self.verbosity = verbosity
@@ -39,11 +39,6 @@ class rubix_cube(ABC):
     def cost(self):
         return sum(distance(c, self.original_positions[p.get_piece_colors(True)]) for c, p in self.cube.get_all_pieces().items())/(self.N**2)
 
-    
-    def scramble(self, depth):
-        return self.cube.scramble(depth)
-    
-    def view(self):
     @abstractmethod
     def child_after(self, move, cube=None):
         pass
@@ -53,9 +48,6 @@ class rubix_cube(ABC):
 
     def get_size(self):
         return self.N
-
-    def cost(self) -> float:
-        return sum(distance(c, self.original_positions[p]) for c, p in self.cube.get_all_pieces().items())
 
     def children(self, incl_action=False, cube=None) -> list:
         if cube:
@@ -90,13 +82,14 @@ class rubix_cube(ABC):
         pass
 
     def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, rubix_cube):
+        if isinstance(__value, RubixCube):
             s_p = self.cube.get_all_pieces()
             v_p = __value.cube.get_all_pieces()
             return all(s_p[k].get_piece_colors() == v_p[k].get_piece_colors() for k in s_p.keys())
         return False
 
-class BeginnerCube(rubix_cube):
+
+class BeginnerCube(RubixCube):
     def solve(self, callback=lambda: 0):
         callback()
         solver = BasicSolver(deepcopy(self.cube))
