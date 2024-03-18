@@ -8,33 +8,17 @@ from magiccube.cube import Face, Color
 BASIC_MOVES = ['L', 'U', 'F']
 
 # Compute the manhattan distance between two tuples
-def ManhattanDistance(t1, t2):
-    return abs(t1[0]-t2[0]) + abs(t1[1]-t2[1]) + abs(t1[2]-t2[2])
-
-
-
-def distance(coordA, coordB) -> float:
-    return sum(abs(x - y) for x, y in zip(coordA, coordB))
-
-# Rank the cube c1
-def man_heuristic(c1:magic.Cube, n):
-    original_positions = {p.get_piece_colors(True): c for c,p in magic.Cube(n).get_all_pieces().items()}
-    return sum(distance(c, original_positions[p.get_piece_colors(True)]) for c, p in c1.get_all_pieces().items())/16
-
-
-def invertFace(face, rev=True):
-    return face[::-1] if rev else face
 
 def cube_str(cube):
     face_order = [Face.D, Face.R, Face.F, Face.L, Face.B, Face.U]
     return "".join(color.name.lower() for face in face_order for color in cube.get_face_flat(face))
+def distance(coordA, coordB):
+    return sum(abs(x-y) for x,y in zip(coordA, coordB))
 
-# def generate_heuristic():
-
-
-class RubixCube(ABC):
-
-    def __init__(self, n, cube=None) -> None:
+class rubix_cube(ABC):
+    __slots__ = ('moves', 'N', 'cube', '_children', 'original_positions', 'verbosity')
+    def __init__(self, n, cube = None, verbosity = 0) -> None:
+        self.verbosity = verbosity
         self.moves = []
         self.N = n
         if cube is None:
@@ -42,12 +26,24 @@ class RubixCube(ABC):
         else:
             self.cube = cube
         self._children = None
-        self.original_positions = {p: c for c, p in self.cube.get_all_pieces().items()}
-        for i in range(1, n + 1):
+        self.original_positions = {p.get_piece_colors(True): c for c,p in magic.Cube(n).get_all_pieces().items()}
+        for i in range(1,n+1):
             for m in BASIC_MOVES:
                 self.moves.append(str(i) + m)
                 self.moves.append(str(i) + m + '\'')
 
+    def print_if(self, v=0, *args, **kwargs):
+        if self.verbosity >= v:
+            print(*args, **kwargs)
+    
+    def cost(self):
+        return sum(distance(c, self.original_positions[p.get_piece_colors(True)]) for c, p in self.cube.get_all_pieces().items())/(self.N**2)
+
+    
+    def scramble(self, depth):
+        return self.cube.scramble(depth)
+    
+    def view(self):
     @abstractmethod
     def child_after(self, move, cube=None):
         pass
@@ -70,7 +66,7 @@ class RubixCube(ABC):
         else:
             if self._children is None:
                 if incl_action:
-                    self._children = [(self.child_after(m), m) for m in self.moves]
+                    self._children = [(m, self.child_after(m)) for m in self.moves]
                 else:
                     self._children = [self.child_after(m) for m in self.moves]
             return self._children
@@ -93,14 +89,14 @@ class RubixCube(ABC):
     def solve(self, callback=lambda: 0) -> list[str]:
         pass
 
-    def repr(self):
-        return self.cube.str()
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, rubix_cube):
+            s_p = self.cube.get_all_pieces()
+            v_p = __value.cube.get_all_pieces()
+            return all(s_p[k].get_piece_colors() == v_p[k].get_piece_colors() for k in s_p.keys())
+        return False
 
-
-class BeginnerCube(RubixCube):
-    def child_after(self, move):
-        pass
-
+class BeginnerCube(rubix_cube):
     def solve(self, callback=lambda: 0):
         callback()
         solver = BasicSolver(deepcopy(self.cube))

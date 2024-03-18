@@ -1,21 +1,24 @@
 from rubix_cube import RubixCube
 
+class NodeLimitException(Exception):
+    pass
 
-def evaluate_solve_rate(cube, n, num_trials=50, depth=10, node_limit=10**6, **kwargs):
+def evaluate_solve_rate(cube: rubix_cube.__class__, n, num_trials=50, depth=10, node_limit=10**6, **kwargs):
     solved = 0
     total_nodes = [0]
     def update():
         total_nodes[0] += 1
-        if n==3 and depth==8:
-            if total_nodes[0] % 100 == 0:
-                print(total_nodes[0])
         if total_nodes[0] > node_limit:
-            raise Exception
-        
+            raise NodeLimitException
     for _ in range(num_trials):
         total_nodes = [0]
         c = cube(n, **kwargs)
         c.scramble(depth)
+        moves = []
+        try:
+            moves = c.solve(callback=update)
+        except NodeLimitException:
+            pass
         moves = []
         try:
             moves = c.solve(callback=update)
@@ -26,16 +29,24 @@ def evaluate_solve_rate(cube, n, num_trials=50, depth=10, node_limit=10**6, **kw
             solved += 1
     return solved / num_trials
 
-def evaluate_node_count(cube: RubixCube.__class__, n, num_trials=50, depth=10, **kwargs):
-    total_nodes = [0]
+def evaluate_node_count(cube: rubix_cube.__class__, n, num_trials=50, depth=10, node_limit=10**6, **kwargs):
+    total_nodes = 0
+    local_nodes = [0]
+    finished_problems = 0
     def update():
-        total_nodes[0] += 1
-    for x in range(num_trials):
-        print(x)
+        local_nodes[0] += 1
+        if local_nodes[0] > node_limit:
+            raise NodeLimitException
+    for _ in range(num_trials):
         c = cube(n, **kwargs)
         c.scramble(depth)
-        c.solve(update)
-    return total_nodes[0] / num_trials
+        try:
+            c.solve(update)
+            total_nodes += local_nodes[0]
+            finished_problems += 1
+        except NodeLimitException:
+            pass
+    return (total_nodes / finished_problems, finished_problems)
 
 def evaluate_n_moves(cube: RubixCube.__class__, n, num_trials=50, depth=10):
     total_moves = 0
