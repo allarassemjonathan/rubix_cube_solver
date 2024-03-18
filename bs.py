@@ -70,15 +70,15 @@ class BeamSearch(RubixCube):
                                 path.extend(action.split(' '))
                                 if verbose>=1:
                                     print('success')
-                                print('Answer is', path)
-                                return path  
+                                print('Answer is', path[:-1])
+                                return path[:-1]  
             else:
                  if node.is_done():
                         path.extend(action.split(' '))
                         if verbose>=1:
                             print('success')
                             print('Answer is', path)
-                            return path  
+                            return path[:-1]  
                                         
             
             # Generate all the neighbors
@@ -156,7 +156,7 @@ class BeamSearch(RubixCube):
         
             
 
-# TESTING FOR NODE COUNT FOR 2
+# TESTING 
 for v in range(8):
-    print(v, 'result (nc)', e.evaluate_node_count(BeamSearch, 3, depth=v,beta=18, num_trials=15, verbose=0))
-    print(v, 'result (sr)', e.evaluate_solve_rate(BeamSearch, 3, depth=v,beta=18, num_trials=15, verbose=0))
+    print(v, 'result (nc)', e.evaluate_node_count(BeamSearch, 2, depth=v,beta=18, num_trials=15, verbose=0))
+    print(v, 'result (sr)', e.evaluate_solve_rate(BeamSearch, 2, depth=v,beta=18, num_trials=15, verbose=0))

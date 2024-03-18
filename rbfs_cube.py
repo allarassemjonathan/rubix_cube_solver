@@ -92,7 +92,7 @@ class RBFSCube(RubixCube):
     
     def solve(self, callback=lambda: 0):
         moves = self.RBFS(callback)[0][:-1]
-        self.print_if(1, "Moves to solution are", moves)
+        self.print_if(0, "Moves to solution are", moves)
         return moves
 
         
