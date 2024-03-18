@@ -158,4 +158,5 @@ class BeamSearch(RubixCube):
 
 # TESTING FOR NODE COUNT FOR 2
 for v in range(8):
-    print(v, 'result', e.evaluate_node_count(BeamSearch, 3, depth=v,beta=18, num_trials=15, verbose=0))
+    print(v, 'result (nc)', e.evaluate_node_count(BeamSearch, 3, depth=v,beta=18, num_trials=15, verbose=0))
+    print(v, 'result (sr)', e.evaluate_solve_rate(BeamSearch, 3, depth=v,beta=18, num_trials=15, verbose=0))
