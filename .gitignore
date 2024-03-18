@@ -1,2 +1,9 @@
 .venv/
 __pycache__/
+venv
+.idea
+heuristic.json
+heuristic 2.json
+heuristic_n_2_d_6.json
+heuristic_n_3_d_5.json
+heuristic_n_4_d_5.json

@@ -1,7 +1,7 @@
-from rubix_cube import rubix_cube
+from rubix_cube import RubixCube
 
 
-class RBFSCube(rubix_cube):
+class RBFSCube(RubixCube):
     def solve(self, callback=lambda: 0):
         callback()
         
