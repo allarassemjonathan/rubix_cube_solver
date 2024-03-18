@@ -7,9 +7,11 @@ from copy import deepcopy
 BASIC_MOVES = ['L','U','F']
 
 def distance(coordA, coordB):
+    # print(coordA, coordB)
     return sum(abs(x-y) for x,y in zip(coordA, coordB))
 
 class rubix_cube(ABC):
+    __slots__ = ('moves', 'N', 'cube', '_children', 'original_positions')
     def __init__(self, n, cube = None) -> None:
         self.moves = []
         self.N = n
@@ -18,7 +20,7 @@ class rubix_cube(ABC):
         else:
             self.cube = cube
         self._children = None
-        self.original_positions = {p: c for c,p in self.cube.get_all_pieces().items()}
+        self.original_positions = {p.get_piece_colors(True): c for c,p in magic.Cube(n).get_all_pieces().items()}
         for i in range(1,n+1):
             for m in BASIC_MOVES:
                 self.moves.append(str(i) + m)
@@ -27,18 +29,18 @@ class rubix_cube(ABC):
     def child_after(self, move):
         c = deepcopy(self.cube)
         c.rotate(move)
-        return rubix_cube(self.N, c)
+        return self.__class__(self.N, c)
     
     def cost(self):
-        return sum(distance(c, self.original_positions[p]) for c, p in self.cube.get_all_pieces().items())
+        return sum(distance(c, self.original_positions[p.get_piece_colors(True)]) for c, p in self.cube.get_all_pieces().items())/(self.N**2)
     
     def children(self):
-        if self.children == None:
-            self.children = [self.child_after(m) for m in self.moves]
-        return self.children
+        if self._children == None:
+            self._children = [(m, self.child_after(m)) for m in self.moves]
+        return self._children
     
     def scramble(self, depth):
-        self.cube.scramble(depth)
+        return self.cube.scramble(depth)
     
     def view(self):
         print(self.cube)
@@ -51,6 +53,13 @@ class rubix_cube(ABC):
     @abstractmethod
     def solve(self, callback=lambda: 0) -> list[str]:
         pass
+
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, rubix_cube):
+            s_p = self.cube.get_all_pieces()
+            v_p = __value.cube.get_all_pieces()
+            return all(s_p[k].get_piece_colors() == v_p[k].get_piece_colors() for k in s_p.keys())
+        return False
 
 class BeginnerCube(rubix_cube):
     def solve(self, callback=lambda: 0):
