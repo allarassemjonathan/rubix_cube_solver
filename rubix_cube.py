@@ -1,3 +1,5 @@
+# Base Cube Implementation - Jonathan Allarassem, Kenneth Browder, Caleb Frey
+
 import magiccube as magic
 from magiccube.cube_move import CubeMove, CubeMoveType
 from magiccube.solver.basic.basic_solver import BasicSolver

@@ -1,3 +1,4 @@
+# Evaluation Methods - Kenneth Browder
 from rubix_cube import RubixCube
 
 class NodeLimitException(Exception):
@@ -38,6 +39,7 @@ def evaluate_node_count(cube, n, num_trials=50, depth=10, node_limit=10**6, **kw
         if local_nodes[0] > node_limit:
             raise NodeLimitException
     for _ in range(num_trials):
+        local_nodes  = [0]
         c = cube(n, **kwargs)
         c.scramble(depth)
         try:
@@ -46,6 +48,8 @@ def evaluate_node_count(cube, n, num_trials=50, depth=10, node_limit=10**6, **kw
             finished_problems += 1
         except NodeLimitException:
             pass
+    if finished_problems == 0:
+        return -1
     return (total_nodes / finished_problems, finished_problems)
 
 def evaluate_n_moves(cube: RubixCube.__class__, n, num_trials=50, depth=10):
